@@ -64,7 +64,8 @@ CreateThread(function()
 						local val = data.current.value
 						if val == 'test_drive' then
 							local pos = GetEntityCoords(PlayerPedId())
-							ESX.Game.SpawnVehicle(v.model, Config.Testing.Coords, Config.Testing.Heading, function(veh) 
+							ESX.Game.SpawnVehicle(v.model, Config.Testing.Coords, Config.Testing.Heading, function(veh)
+								SetEntityCoords(PlayerPedId(), Config.Testing.Coords, 0, 0, 0, 0, 1)
 								TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
 							end)
 							ESX.ShowNotification("Tienes ~r~"  ..Config.Testing.Time..  " ~w~ segundos restantes")
@@ -79,8 +80,7 @@ CreateThread(function()
 								}, function(data2, menu2)
 									if string.len(tostring(data2.value)) < Config.MaxPlate + 1 then
 										setPlate(v.model, data2.value)
-										print(data2.value:upper())
-										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value, getProps(v.model))
+										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value:upper(), getProps(v.model))
 										menu2.close()
 									else
 										ESX.ShowNotification('Maximum of 6 characters')
@@ -101,7 +101,7 @@ CreateThread(function()
 								}, function(data2, menu2)
 									if string.len(tostring(data2.value)) < Config.MaxPlate + 1 then 
 										setPlate(v.model, data2.value)
-										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value, getProps(v.model))
+										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value:upper(), getProps(v.model))
 										menu2.close()
 									else
 										ESX.ShowNotification('Maximum of 6 characters')
@@ -131,8 +131,6 @@ CreateThread(function()
 							}, function(data2, menu2)
 									local val = data2.current
 									if val then	
-										print(currentPrimary)
-										print(currentSecondary)
 										currentPrimary = tonumber(val.value)
 										SetVehicleColours(getVehicle(v.model), tonumber(val.value), currentSecondary)
 										setColor(v.model, tonumber(val.value))
@@ -253,10 +251,4 @@ AddEventHandler('onResourceStop', function(resourceName)
 			end
 		end
     end
-end)
-
-AddEventHandler('onClientResourceStart', function(resourceName)
-	if GetCurrentResourceName() == resourceName then
-    	print("Vehicles Refreshed")
-	end
 end)

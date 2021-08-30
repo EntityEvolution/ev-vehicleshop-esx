@@ -12,6 +12,8 @@ if Config.UseOldEsx then
 end
 
 local currentVehicles = {}
+local currentPrimary = 0
+local currentSecondary = 0
 
 ESX.TriggerServerCallback('ev:refresh', function(spawned)
 	if not spawned then
@@ -56,7 +58,8 @@ CreateThread(function()
 							{label = "Test Drive", value = 'test_drive'},
 							{label = "Pay With Credit Card", value = 'bank'},
 							{label = "Pay with Cash", value = 'money'},
-							{label = "Cambiar Color", value = "color"}
+							{label = "Cambiar Color", value = "color"},
+							{label = "Cambiar Color Secondario", value = "secondary_color"},
 					}}, function(data, menu)
 						local val = data.current.value
 						if val == 'test_drive' then
@@ -74,7 +77,7 @@ CreateThread(function()
 								ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'vehicle_plate', {
 									title = 'Plate (6 chars) or random',
 								}, function(data2, menu2)
-									if string.len(tostring(data2.value)) <= Config.MaxPlate then
+									if string.len(tostring(data2.value)) < Config.MaxPlate + 1 then
 										setPlate(v.model, data2.value)
 										print(data2.value:upper())
 										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value, getProps(v.model))
@@ -96,7 +99,7 @@ CreateThread(function()
 								ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'vehicle_plate', {
 									title = 'Plate (6 chars Max) or random',
 								}, function(data2, menu2)
-									if string.len(tostring(data2.value)) <= Config.MaxPlate then 
+									if string.len(tostring(data2.value)) < Config.MaxPlate + 1 then 
 										setPlate(v.model, data2.value)
 										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value, getProps(v.model))
 										menu2.close()
@@ -113,12 +116,12 @@ CreateThread(function()
 								TriggerServerEvent('ev:getVehicle', v.price, val, v.model, currentPlate, getProps(v.model))
 								menu.close()
 							end
-						elseif val == "color" then 
+						elseif val == "color" then
 							local colors = {}
-							for _, v in pairs(Config.Colors) do
+							for i = 0, #Config.Colors, 1 do
 								table.insert(colors, {
-									label = v.label,
-									value = v.value
+									label = Config.Colors[i],
+									value = i
 								})
 							end
 							ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_colors', {
@@ -126,10 +129,35 @@ CreateThread(function()
 								align    = 'right',
 								elements = colors
 							}, function(data2, menu2)
-									local val = data2.current,value
+									local val = data2.current
 									if val then	
-										SetVehicleColours(getVehicle(v.model), tonumber(val.value), 0)
+										print(currentPrimary)
+										print(currentSecondary)
+										currentPrimary = tonumber(val.value)
+										SetVehicleColours(getVehicle(v.model), tonumber(val.value), currentSecondary)
 										setColor(v.model, tonumber(val.value))
+									end
+							end, function(data2, menu2)
+								menu2.close()
+							end)
+						elseif val == "secondary_color" then
+							local colors = {}
+							for i = 0, #Config.Colors, 1 do
+								table.insert(colors, {
+									label = Config.Colors[i],
+									value = i
+								})
+							end
+							ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_colors', {
+								title    = 'Car Colors',
+								align    = 'right',
+								elements = colors
+							}, function(data2, menu2)
+									local val = data2.current
+									if val then	
+										currentSecondary = tonumber(val.value)
+										SetVehicleColours(getVehicle(v.model), currentPrimary, tonumber(val.value))
+										setColor2(v.model, tonumber(val.value))
 									end
 							end, function(data2, menu2)
 								menu2.close()
@@ -180,6 +208,16 @@ function setColor(vehicle, color)
 		if DoesEntityExist(currentVehicles[i].vehicle) then
 			if vehicle == currentVehicles[i].model then
 				currentVehicles[i].properties.color1 = color
+			end
+		end
+	end
+end
+
+function setColor2(vehicle, color)
+	for i = 1, #currentVehicles, 1 do
+		if DoesEntityExist(currentVehicles[i].vehicle) then
+			if vehicle == currentVehicles[i].model then
+				currentVehicles[i].properties.color2 = color
 			end
 		end
 	end

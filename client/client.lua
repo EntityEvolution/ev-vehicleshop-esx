@@ -22,7 +22,7 @@ ESX.TriggerServerCallback('ev:refresh', function(spawned)
 			while not HasModelLoaded(GetHashKey(v.model)) do
 				Wait(0)
 			end
-			local vehicle =  CreateVehicle(GetHashKey(v.model),  v.coords, false)
+			local vehicle =  CreateVehicle(GetHashKey(v.model),  v.coords, true)
 			table.insert(currentVehicles, {
 				vehicle = vehicle,
 				model = v.model,

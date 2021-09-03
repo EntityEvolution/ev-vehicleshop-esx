@@ -3,7 +3,7 @@ Config = {}
 Config.UseOldEsx = false -- Use ESX 1.x
 
 -- Notification
-Config.Message = "Model: ~r~%s ~w~\nPrice: ~g~$%s \n~y~E~w~ - Interact" -- Buying text (do NOT erase the %s)
+Config.Message = 'Model: ~r~%s ~w~\nPrice: ~g~$%s \n~y~E~w~ - Interact' -- Buying text (do NOT erase the %s)
 Config.NotificationDistance = 2 -- Show notification distance
 
 -- Custom Plate
@@ -12,14 +12,14 @@ Config.MaxPlate = 6 -- Max plate text (8 max)
 
 -- List of all vehicle shop cars
 Config.Cars = {
-    { model = "t20", label = 'T20', price = "2000", coords = vec4(226.53, -880.83, 29.50, 314.97), plate = 'SHOW' },
-    { model = "zentorno", label = 'Zentorno', price = "5000", coords = vec4(223.3167, -878.686, 29.50, 314.97), plate = 'PREVIEW'  },
-    { model = "adder", label = 'BOMBAY', price = "40000", coords = vec4(223.4924, -787.588, 30.748, 68.78), plate = 'PA1N'  }
+    { model = 't20', label = 'T20', price = '2000', coords = vec4(226.53, -880.83, 29.50, 314.97), plate = 'SHOW' },
+    { model = 'zentorno', label = 'Zentorno', price = '5000', coords = vec4(223.3167, -878.686, 29.50, 314.97), plate = 'PREVIEW'  },
+    { model = 'adder', label = 'BOMBAY', price = '40000', coords = vec4(223.4924, -787.588, 30.748, 68.78), plate = 'PA1N'  }
 }
 
 -- Testing place/time
 Config.Testing = {
-    Coords = vec3(-1046.49, -3317.50, 13.944),
+    Coords = vector3(-1046.49, -3317.50, 13.944),
     Heading = 200.00,
     Time = 10
 }

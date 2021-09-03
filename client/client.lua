@@ -15,14 +15,9 @@ local currentVehicles = {}
 local currentPrimary = 0
 local currentSecondary = 0
 
-ESX.TriggerServerCallback('ev:refresh', function(spawned)
-	if not spawned then
-		for _, v in ipairs(Config.Cars) do
-			RequestModel(GetHashKey(v.model))
-			while not HasModelLoaded(GetHashKey(v.model)) do
-				Wait(0)
-			end
-			local vehicle =  CreateVehicle(GetHashKey(v.model),  v.coords, true)
+CreateThread(function()
+	for _, v in ipairs(Config.Cars) do
+		ESX.Game.SpawnLocalVehicle(v.model, v.coords, v.h, function(vehicle)
 			table.insert(currentVehicles, {
 				vehicle = vehicle,
 				model = v.model,
@@ -32,15 +27,13 @@ ESX.TriggerServerCallback('ev:refresh', function(spawned)
 			SetVehicleEngineOn(vehicle, false, false, false)
 			SetVehicleUndriveable(vehicle, true)
 			FreezeEntityPosition(vehicle, true)
-			SetEntityAsMissionEntity(vehicle, true, true)
-			SetModelAsNoLongerNeeded(vehicle)
 			SetEntityInvincible(vehicle, true)
 			SetVehicleLights(vehicle, 2)
 			WashDecalsFromVehicle(vehicle, 1.0)
 			SetVehicleDirtLevel(vehicle)
 			SetVehicleDoorsLocked(vehicle, 2)
 			SetVehicleNumberPlateText(vehicle, v.plate)
-		end
+        end)
 	end
 end)
 
@@ -51,28 +44,30 @@ CreateThread(function()
 			if distance < Config.NotificationDistance then
 				floatTxt(Config.Message:format(v.label, v.price), vec3(v.coords.x, v.coords.y, v.coords.z + 1.65))
 				if IsControlJustReleased(0, 38) then
-					ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_shop', {
+					ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_shop_menu', {
 						title    = 'Vehicle Shop Menu',
 						align    = 'right',
 						elements = {
-							{label = "Test Drive", value = 'test_drive'},
-							{label = "Pay With Credit Card", value = 'bank'},
-							{label = "Pay with Cash", value = 'money'},
-							{label = "Cambiar Color", value = "color"},
-							{label = "Cambiar Color Secondario", value = "secondary_color"},
+							{label = 'Test Drive', value = 'test_drive'},
+							{label = 'Pay With Credit Card', value = 'bank'},
+							{label = 'Pay with Cash', value = 'money'},
+							{label = 'Cambiar Color', value = 'color'},
+							{label = 'Cambiar Color Secondario', value = 'secondary_color'},
 					}}, function(data, menu)
 						local val = data.current.value
 						if val == 'test_drive' then
-							local pos = GetEntityCoords(PlayerPedId())
+							local ped = PlayerPedId()
+							local pos = GetEntityCoords(ped)
 							ESX.Game.SpawnVehicle(v.model, Config.Testing.Coords, Config.Testing.Heading, function(veh)
-								SetEntityCoords(PlayerPedId(), Config.Testing.Coords, 0, 0, 0, 0, 1)
-								TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+								SetEntityCoords(ped, Config.Testing.Coords, 0, 0, 0, 1)
+								Wait(1500)
+								TaskWarpPedIntoVehicle(ped, veh, -1)
 							end)
-							ESX.ShowNotification("You have ~r~"  ..Config.Testing.Time..  " ~w~ seconds left")
+							ESX.ShowNotification('You have ~r~'  ..Config.Testing.Time..  ' ~w~ seconds left')
 							menu.close()
 							Wait(Config.Testing.Time * 1000)
-							ESX.Game.DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
-							SetEntityCoords(PlayerPedId(), pos)
+							ESX.Game.DeleteVehicle(GetVehiclePedIsIn(ped))
+							SetEntityCoords(ped, pos)
 						elseif val == 'bank' then
 							if Config.AllowCustomPlate then
 								ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'vehicle_plate', {
@@ -85,7 +80,7 @@ CreateThread(function()
 									else
 										ESX.ShowNotification('Maximum of 6 characters')
 									end
-								end, function(menu2, data2)
+								end, function(data2, menu2)
 									menu2.close()
 								end)
 							else
@@ -101,13 +96,15 @@ CreateThread(function()
 								}, function(data2, menu2)
 									if string.len(tostring(data2.value)) < Config.MaxPlate + 1 then 
 										setPlate(v.model, data2.value)
+
+										print(getProps(v.model))
 										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value:upper(), getProps(v.model))
 										menu2.close()
 									else
 										ESX.ShowNotification('Maximum of 6 characters')
 									end
 									menu2.close()
-								end, function(menu2, data2)
+								end, function(data2, menu2)
 									menu2.close()
 								end)
 							else
@@ -116,7 +113,7 @@ CreateThread(function()
 								TriggerServerEvent('ev:getVehicle', v.price, val, v.model, currentPlate, getProps(v.model))
 								menu.close()
 							end
-						elseif val == "color" then
+						elseif val == 'color' then
 							local colors = {}
 							for i = 0, #Config.Colors, 1 do
 								table.insert(colors, {
@@ -138,7 +135,7 @@ CreateThread(function()
 							end, function(data2, menu2)
 								menu2.close()
 							end)
-						elseif val == "secondary_color" then
+						elseif val == 'secondary_color' then
 							local colors = {}
 							for i = 0, #Config.Colors, 1 do
 								table.insert(colors, {
@@ -163,7 +160,7 @@ CreateThread(function()
 						end
 					end, function(data, menu)
 						menu.close()
-					end)	
+					end)
 				end
 			end
 		end
@@ -222,10 +219,10 @@ function setColor2(vehicle, color)
 end
 
 function generateString(length)
-    local letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    local numbers = "0123456789"
+    local letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    local numbers = '0123456789'
     local characterSet = letters .. numbers
-    local output = ""
+    local output = ''
     for i=1, length do
         local random = math.random(#characterSet)
         output = output .. string.sub(characterSet, random, random)

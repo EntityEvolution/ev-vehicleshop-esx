@@ -2,21 +2,13 @@ if Config.UseOldEsx then
     ESX = nil
     TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 end
-local spawned = false
-
-ESX.RegisterServerCallback('ev:refresh', function(source, cb)
-	cb(spawned)
-    if not spawned then
-        spawned = true
-    end
-end)
 
 RegisterNetEvent('ev:getVehicle', function(price, type, model, plate, properties)
     local source <const> = source
     local xPlayer = ESX.GetPlayerFromId(source)
     if xPlayer then
         MySQL.Async.fetchAll('SELECT * FROM owned_vehicles WHERE plate = @plate', {
-            ['@plate'] = plate
+            ['plate'] = plate
         }, function(result)
             if result[1] == nil then
                 local xMoney = xPlayer.getAccount(type).money

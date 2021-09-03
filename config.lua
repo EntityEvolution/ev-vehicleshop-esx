@@ -3,7 +3,7 @@ Config = {}
 Config.UseOldEsx = false -- Use ESX 1.x
 
 -- Notification
-Config.Message = "Model: ~r~%s ~w~\Price: ~g~$%s \n~y~E~w~ - Interact" -- Buying text (do NOT erase the %s)
+Config.Message = "Model: ~r~%s ~w~\nPrice: ~g~$%s \n~y~E~w~ - Interact" -- Buying text (do NOT erase the %s)
 Config.NotificationDistance = 2 -- Show notification distance
 
 -- Custom Plate

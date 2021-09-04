@@ -92,8 +92,6 @@ CreateThread(function()
 								}, function(data2, menu2)
 									if string.len(tostring(data2.value)) < Config.MaxPlate + 1 then 
 										setPlate(v.model, data2.value)
-
-										print(getProps(v.model))
 										TriggerServerEvent('ev:getVehicle', v.price, val, v.model, data2.value:upper(), getProps(v.model))
 										menu2.close()
 									else

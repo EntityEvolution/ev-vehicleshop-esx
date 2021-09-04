@@ -4,7 +4,6 @@ local GetEntityCoords = GetEntityCoords
 local PlayerPedId = PlayerPedId
 local IsControlJustReleased = IsControlJustReleased
 local TaskWarpPedIntoVehicle = TaskWarpPedIntoVehicle
-local GetHashKey = GetHashKey
 
 if Config.UseOldEsx then
 	ESX = nil
@@ -17,7 +16,7 @@ local currentSecondary = 0
 
 CreateThread(function()
 	for _, v in ipairs(Config.Cars) do
-		ESX.Game.SpawnLocalVehicle(v.model, v.coords, v.h, function(vehicle)
+		ESX.Game.SpawnLocalVehicle(v.model, v.coords, v.coords.w, function(vehicle)
 			table.insert(currentVehicles, {
 				vehicle = vehicle,
 				model = v.model,
@@ -35,9 +34,6 @@ CreateThread(function()
 			SetVehicleNumberPlateText(vehicle, v.plate)
         end)
 	end
-end)
-
-CreateThread(function()
 	while true do
 		for _, v in pairs(Config.Cars) do
 			local distance = #(GetEntityCoords(PlayerPedId()) - vec3(v.coords.x, v.coords.y, v.coords.z))
@@ -58,10 +54,10 @@ CreateThread(function()
 						if val == 'test_drive' then
 							local ped = PlayerPedId()
 							local pos = GetEntityCoords(ped)
-							ESX.Game.SpawnVehicle(v.model, Config.Testing.Coords, Config.Testing.Heading, function(veh)
-								SetEntityCoords(ped, Config.Testing.Coords, 0, 0, 0, 1)
-								Wait(1500)
-								TaskWarpPedIntoVehicle(ped, veh, -1)
+							SetEntityCoords(ped, Config.Testing.Coords, 0, 0, 0, 1)
+							ESX.Game.SpawnVehicle(v.model, Config.Testing.Coords, Config.Testing.Heading, function(vehicle)
+								SetVehicleDoorsLocked(vehicle, 4)
+								TaskWarpPedIntoVehicle(ped, vehicle, -1)
 							end)
 							ESX.ShowNotification('You have ~r~'  ..Config.Testing.Time..  ' ~w~ seconds left')
 							menu.close()

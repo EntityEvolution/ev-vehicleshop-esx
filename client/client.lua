@@ -16,7 +16,7 @@ local currentSecondary = 0
 
 CreateThread(function()
 	for _, v in ipairs(Config.Cars) do
-		ESX.Game.SpawnLocalVehicle(v.model, v.coords, v.coords.w, function(vehicle)
+		ESX.Game.SpawnLocalVehicle(v.model, vec3(v.coords.x, v.coords.y, v.coords.z), v.coords.w, function(vehicle)
 			table.insert(currentVehicles, {
 				vehicle = vehicle,
 				model = v.model,
